@@ -15,8 +15,6 @@ def removebg(path):
     return path
 
 def text(words, fnt="Arial", size=20, color=(255,255,255)):
-    if fnt=="Start":
-        fnt="assets/PressStart2p-Regular.ttf"
     font = pygame.font.SysFont(fnt, size)
     txt = font.render(words, 1, color)
     return txt

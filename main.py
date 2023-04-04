@@ -8,7 +8,7 @@ pygame.init()
 # Set up the Pygame display
 screen_width = 800
 screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF)
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF|pygame.HWSURFACE|pygame.RESIZABLE)
 pygame.display.set_caption("SPACE INVADER - Badr 1ère05 | FPS : ")
 
 
@@ -30,9 +30,9 @@ def draw_background():
     screen.blit(background_img, (0, background_y+screen_height))
 
 def title_screen():
-    title = text("SPACE INVADER","Start",50,(0,255,0))
+    title = text("SPACE INVADER",'assets/PressStart2p-Regular.ttf',50,(0,255,0))
     copy = text(f"Meilleur score : {best_score} | Mohamed Badr Benchekroun",None,30,(255,255,255))
-    command = text("Appuyez sur espace",'Start',20,(255,0,0))
+    command = text("Appuyez sur espace",'assets/PressStart2p-Regular.ttf',20,(255,0,0))
     screen.blit(title,((int(screen_width/2-100),int(screen_height/2))))
     screen.blit(copy,((int(screen_width/2-100),int(screen_height/2+50))))
     screen.blit(command,((int(screen_width/2-100),int(screen_height/2+100))))
@@ -50,9 +50,7 @@ rock = pygame.transform.scale(rock, (40, 40))
 meteor = pygame.image.load(removebg("assets/meteor.png"))
 meteor = pygame.transform.scale(meteor, (100, 100))
 proj = pygame.image.load(removebg("assets/cross_impact.png"))
-proj = pygame.transform.scale(proj, (20, 20))
 projalien = pygame.image.load(removebg("assets/explosion_2.png"))
-proj = pygame.transform.scale(projalien, (20, 20))
 
 Coordproj = (0,screen_height)
 Coordprojalien = (screen_width,0)
@@ -65,11 +63,11 @@ Coordlune = (-screen_width/1.5,-screen_height/1.5)
 right = True
 cpt = 0
 gameover = 0
-game_over = text("GAME OVER","Start",50,(255,0,0))
+game_over = text("GAME OVER",'assets/PressStart2p-Regular.ttf',50,(255,0,0))
 score = 0
 def jeu():
     global Coordvaisseau, Coordalien, right, Coordhole, Coordrock, Coordmeteor, cpt, Coordproj, gameover, score, Coordprojalien
-    text_score = text(f"Score : {score}","Start",30,(255,255,255))
+    text_score = text(f"Score : {score}",'assets/PressStart2p-Regular.ttf',30,(255,255,255))
     screen.blit(text_score,(0,screen_height/2))
     screen.blit(lune, Coordlune)
     screen.blit(alien, Coordalien)
@@ -134,7 +132,6 @@ def jeu():
         print("Fin")
     if Coordproj[1]-Coordalien[1]<2 and Coordproj[0]-Coordalien[0]>-100 and Coordproj[0]-Coordalien[0]<0:
         score+=1
-        print(Coordalien,Coordproj)
 
 
 
@@ -164,6 +161,7 @@ while True:
             screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 
             #update coordinates
+            Coordprojalien = (screen_width,0)
             lune = pygame.transform.scale(lune, (screen_width, screen_height))
             Coordvaisseau = (screen_width/2,screen_height-96)
             Coordalien = (screen_width/2,10)
@@ -207,11 +205,8 @@ while True:
     else:
         Coordproj = (0, screen_height)
     if Coordprojalien[1]>=100:
-        print("Launched")
         Coordprojalien = (Coordprojalien[0], Coordprojalien[1] + 30)
-    print(Coordprojalien)
     if Coordprojalien[1]>=screen_height:
-        print("Arrived")
         Coordprojalien = (screen_width, 0)
     if gameover and ingame:
         screen.blit(game_over,(screen_width/2,screen_width/2))
