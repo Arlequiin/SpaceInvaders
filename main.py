@@ -33,11 +33,18 @@ def title_screen():
     title = text("SPACE INVADER",'assets/PressStart2p-Regular.ttf',50,(0,255,0))
     copy = text(f"Meilleur score : {best_score} | Mohamed Badr Benchekroun",None,30,(255,255,255))
     command = text("Appuyez sur espace",'assets/PressStart2p-Regular.ttf',20,(255,0,0))
-    screen.blit(title,((int(screen_width/2-100),int(screen_height/2))))
-    screen.blit(copy,((int(screen_width/2-100),int(screen_height/2+50))))
-    screen.blit(command,((int(screen_width/2-100),int(screen_height/2+100))))
+    summary = text("Vous êtes un astronaute de l'équipage du vaisseau SpaceY. De nombreuses météorites et trous noirs",'assets/PressStart2p-Regular.ttf',20,(255,255,255))
+    summary2 = text("ont fait leur apparition à proximité de la Lune, le Professeur Einstein IV pense que cela est du à la présence d'extraterrestres, ",'assets/PressStart2p-Regular.ttf',20,(255,255,255))
+    summary3 = text("leurs vaisseaux fonctionnant à l'énergie noire. Votre mission est d'abattre un maximum de ces vaisseaux.",'assets/PressStart2p-Regular.ttf',20,(255,255,255))   
+    screen.blit(title,((screen_width//2-100,screen_height//2)))
+    screen.blit(copy,(screen_width//2-100,screen_height//2+50))
+    screen.blit(command,(((screen_width//2-100),screen_height//2+100)))
+    screen.blit(summary,(0,screen_height//2+200))
+    screen.blit(summary2,(0,screen_height//2+230))
+    screen.blit(summary3,(0,screen_height//2+250))
 
-
+bottle = pygame.image.load("assets/alien.webp")
+Coordbottle = (0,screen_height)
 alien = pygame.image.load("assets/alien.webp")
 alien = pygame.transform.scale(alien, (100, 100))
 vaisseau = pygame.image.load("assets/vaisseau.png")
@@ -49,9 +56,15 @@ rock = pygame.image.load(removebg("assets/stealth_rock.png"))
 rock = pygame.transform.scale(rock, (40, 40))
 meteor = pygame.image.load(removebg("assets/meteor.png"))
 meteor = pygame.transform.scale(meteor, (100, 100))
+meteor = pygame.transform.rotate(meteor, 210)
 proj = pygame.image.load(removebg("assets/cross_impact.png"))
 projalien = pygame.image.load(removebg("assets/explosion_2.png"))
-
+explosion = []
+Coordexplosion = []
+for i in range(4):
+    explosion.append(pygame.image.load(removebg(f"assets/explosion_4/{i}.png")))
+    explosion[i] = pygame.transform.scale(explosion[i], (100, 100))
+    Coordexplosion.append((0,screen_height))
 Coordproj = (0,screen_height)
 Coordprojalien = (screen_width,0)
 Coordhole = (0,screen_height*2)
@@ -63,21 +76,30 @@ Coordlune = (-screen_width/1.5,-screen_height/1.5)
 right = True
 cpt = 0
 gameover = 0
+life = 5
+projectiles_restants = 100
 game_over = text("GAME OVER",'assets/PressStart2p-Regular.ttf',50,(255,0,0))
 score = 0
 def jeu():
-    global Coordvaisseau, Coordalien, right, Coordhole, Coordrock, Coordmeteor, cpt, Coordproj, gameover, score, Coordprojalien
-    text_score = text(f"Score : {score}",'assets/PressStart2p-Regular.ttf',30,(255,255,255))
-    screen.blit(text_score,(0,screen_height/2))
+    global Coordvaisseau, Coordalien, right, Coordhole, Coordrock, Coordmeteor, cpt, Coordproj, gameover, score, Coordprojalien, explosion, Coordexplosion, Coordlune, bottle, Coordbottle, life, projectiles_restants
+    text_score = text(f"Score : {score}",'assets/PressStart2p-Regular.ttf',30,(255,0,0))
+    text_life = text(f"Score : {life*'•'}",'assets/PressStart2p-Regular.ttf',30,(255,0,0))
+    text_proj = text(f"Projectiles : {projectiles_restants}",'assets/PressStart2p-Regular.ttf',30,(255,0,0))
     screen.blit(lune, Coordlune)
     screen.blit(alien, Coordalien)
     screen.blit(vaisseau, Coordvaisseau)
     screen.blit(hole, Coordhole)
     screen.blit(rock, Coordrock)
     screen.blit(meteor, Coordmeteor)
+    screen.blit(bottle, Coordbottle)
     screen.blit(proj, Coordproj)
     screen.blit(projalien, Coordprojalien)
-    cpt+=1
+    screen.blit(text_score,(0,screen_height/2))
+    screen.blit(text_life,(0,screen_height/2+20))
+    screen.blit(text_proj,(0,screen_height/2+40))
+    for i in range(4):
+        screen.blit(explosion[i], Coordexplosion[i])
+    cpt+=1 
     if cpt>=random.randrange(1,10) & random.randint(1,5)==1:
         if Coordhole[1]>=screen_height:
             Coordhole = (random.randrange(0,screen_width),0)
@@ -89,6 +111,9 @@ def jeu():
     if cpt>=random.randrange(1,10) & random.randint(1,10)==1:
         if Coordmeteor[1]>=screen_height:
             Coordmeteor = (random.randrange(0,screen_width),0)
+    if cpt>=random.randrange(1,10) & random.randint(1,20)==1:
+        if Coordbottle[1]>=screen_height:
+            Coordbottle = (random.randrange(0,screen_width),0)
     if cpt>=15:
         cpt=0
     if Coordrock[1]<screen_height:
@@ -97,6 +122,8 @@ def jeu():
         Coordmeteor = (Coordmeteor[0],Coordmeteor[1]+6)
     if Coordhole[1]<screen_height:
         Coordhole = (Coordhole[0],Coordhole[1]+3)
+    if Coordbottle[1]<screen_height:
+        Coordbottle = (Coordbottle[0],Coordbottle[1]+1)
     if right:
         Coordalien = (Coordalien[0] +10, Coordalien[1])
         if Coordalien[0] +10 >= screen_width:
@@ -111,27 +138,35 @@ def jeu():
     if keypress[pygame.K_LEFT]:
         if Coordvaisseau[0]>0:  
             Coordvaisseau = ( Coordvaisseau[0] -10 , Coordvaisseau[1] ) 
-    if random.randint(1,50)==3:
+    if random.randint(1,100)==3:
         if Coordprojalien==(screen_width,0):
            Coordprojalien=(Coordalien[0]+100/2,100)
         
     if keypress[pygame.K_SPACE]:
-            if Coordproj==(0,screen_height):
-                Coordproj = (Coordvaisseau[0]+96/2,screen_height-96)
-    if Coordvaisseau[1]-Coordhole[1]<2 and Coordvaisseau[0]-Coordhole[0]>-96 and Coordvaisseau[0]-Coordhole[0]<0:
-        gameover=1
-        print("Fin")
-    if Coordvaisseau[1]-Coordrock[1]<2 and Coordvaisseau[0]-Coordrock[0]>-96 and Coordvaisseau[0]-Coordrock[0]<0:
-        gameover=1
-        print("Fin")
-    if Coordvaisseau[1]-Coordmeteor[1]<2 and Coordvaisseau[0]-Coordmeteor[0]>-96 and Coordvaisseau[0]-Coordmeteor[0]<0:
-        gameover=1
-        print("Fin")
-    if Coordvaisseau[1]-Coordprojalien[1]<2 and Coordvaisseau[0]-Coordprojalien[0]>-96 and Coordvaisseau[0]-Coordprojalien[0]<0:
-        gameover=1
-        print("Fin")
-    if Coordproj[1]-Coordalien[1]<2 and Coordproj[0]-Coordalien[0]>-100 and Coordproj[0]-Coordalien[0]<0:
+            if projectiles_restants>0:
+                if Coordproj==(0,screen_height):
+                    Coordproj = (Coordvaisseau[0]+96/2,screen_height-96)
+                projectiles_restants-=1
+    if Coordvaisseau[1]-Coordhole[1]<2 and Coordvaisseau[0]-Coordhole[0]>-96+96/2 and Coordvaisseau[0]-Coordhole[0]<+96/2:
+        life-=1
+    if Coordvaisseau[1]-Coordrock[1]<2 and Coordvaisseau[0]-Coordrock[0]>-96+96/2 and Coordvaisseau[0]-Coordrock[0]<+96/2:
+        life-=1
+    if Coordvaisseau[1]-Coordmeteor[1]<2 and Coordvaisseau[0]-Coordmeteor[0]>-96+96/2 and Coordvaisseau[0]-Coordmeteor[0]<+96/2:
+        life-=1
+    if Coordvaisseau[1]-Coordprojalien[1]<2 and Coordvaisseau[0]-Coordprojalien[0]>-96+96/2 and Coordvaisseau[0]-Coordprojalien[0]<+96/2:
+        life-=1
+    if Coordvaisseau[1]-Coordbottle[1]<2 and Coordvaisseau[0]-Coordbottle[0]>-96+96/2 and Coordvaisseau[0]-Coordbottle[0]<+96/2:
+        projectiles_restants+=1
+    if Coordproj[1]-Coordalien[1]<2 and Coordproj[0]-Coordalien[0]>-50 and Coordproj[0]-Coordalien[0]<50:
         score+=1
+        for i in range(4):
+            Exp_frame=explosion[i]
+            screen.blit(Exp_frame,Coordalien)
+            pygame.display.flip()
+            pygame.time.wait(100)
+            Coordexplosion[i]=(0,screen_height)
+            Coordlune=(Coordlune[0],Coordlune[1]+5)
+        Coordalien=(-1,-1)
 
 
 
@@ -176,7 +211,7 @@ while True:
             background_img = pygame.Surface((screen_width, screen_height))
             for y in range(screen_height):
                 for x in range(screen_width):
-                    temp = random.choice([True]+[False]*600)
+                    temp = random.choice([True]+[False]*100) #frequence of stars
                     if temp:
                         color = (255, 255, 255)
                     else:
@@ -185,7 +220,7 @@ while True:
 
     # Animation fond
     if ingame:
-        background_y -=1/2  #vitesse
+        background_y -=1/5  #vitesse
     else:
         background_y -= 1/5 #vitesse
     if background_y < -screen_width:
@@ -201,13 +236,15 @@ while True:
             ingame = 1
     
     if Coordproj[1]>=0 and Coordproj!=(0,screen_height):
-        Coordproj = (Coordproj[0], Coordproj[1] - 50)
+        Coordproj = (Coordproj[0], Coordproj[1] - 70)
     else:
         Coordproj = (0, screen_height)
     if Coordprojalien[1]>=100:
         Coordprojalien = (Coordprojalien[0], Coordprojalien[1] + 30)
     if Coordprojalien[1]>=screen_height:
         Coordprojalien = (screen_width, 0)
+    if life==0:
+        gameover=1
     if gameover and ingame:
         screen.blit(game_over,(screen_width/2,screen_width/2))
         pygame.display.update()
