@@ -8,7 +8,7 @@ pygame.init()
 # Set up the Pygame display
 screen_width = 800
 screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF|pygame.HWSURFACE|pygame.RESIZABLE)
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.DOUBLEBUF)
 pygame.display.set_caption("SPACE INVADER - Badr 1ère05 | FPS : ")
 
 
@@ -38,7 +38,8 @@ def title_screen():
     screen.blit(command,((int(screen_width/2-100),int(screen_height/2+100))))
 
 
-alien = pygame.image.load("assets/alien.png")
+alien = pygame.image.load("assets/alien.webp")
+alien = pygame.transform.scale(alien, (100, 100))
 vaisseau = pygame.image.load("assets/vaisseau.png")
 lune = pygame.image.load(removebg("assets/moon.png"))
 lune = pygame.transform.scale(lune, (screen_width, screen_height))
@@ -48,9 +49,13 @@ rock = pygame.image.load(removebg("assets/stealth_rock.png"))
 rock = pygame.transform.scale(rock, (40, 40))
 meteor = pygame.image.load(removebg("assets/meteor.png"))
 meteor = pygame.transform.scale(meteor, (100, 100))
-proj = pygame.image.load(removebg("assets/explosion_2.png"))
+proj = pygame.image.load(removebg("assets/cross_impact.png"))
 proj = pygame.transform.scale(proj, (20, 20))
+projalien = pygame.image.load(removebg("assets/explosion_2.png"))
+proj = pygame.transform.scale(projalien, (20, 20))
+
 Coordproj = (0,screen_height)
+Coordprojalien = (screen_width,0)
 Coordhole = (0,screen_height*2)
 Coordrock = (0,screen_height)
 Coordmeteor = (0,screen_height*1.2)
@@ -63,7 +68,7 @@ gameover = 0
 game_over = text("GAME OVER","Start",50,(255,0,0))
 score = 0
 def jeu():
-    global Coordvaisseau, Coordalien, right, Coordhole, Coordrock, Coordmeteor, cpt, Coordproj, gameover, score
+    global Coordvaisseau, Coordalien, right, Coordhole, Coordrock, Coordmeteor, cpt, Coordproj, gameover, score, Coordprojalien
     text_score = text(f"Score : {score}","Start",30,(255,255,255))
     screen.blit(text_score,(0,screen_height/2))
     screen.blit(lune, Coordlune)
@@ -73,6 +78,7 @@ def jeu():
     screen.blit(rock, Coordrock)
     screen.blit(meteor, Coordmeteor)
     screen.blit(proj, Coordproj)
+    screen.blit(projalien, Coordprojalien)
     cpt+=1
     if cpt>=random.randrange(1,10) & random.randint(1,5)==1:
         if Coordhole[1]>=screen_height:
@@ -107,9 +113,13 @@ def jeu():
     if keypress[pygame.K_LEFT]:
         if Coordvaisseau[0]>0:  
             Coordvaisseau = ( Coordvaisseau[0] -10 , Coordvaisseau[1] ) 
+    if random.randint(1,50)==3:
+        if Coordprojalien==(screen_width,0):
+           Coordprojalien=(Coordalien[0]+100/2,100)
+        
     if keypress[pygame.K_SPACE]:
-            Coordproj = (Coordvaisseau[0]+96/2,screen_height-96)
-            #Coordproj=(0,screen_height)
+            if Coordproj==(0,screen_height):
+                Coordproj = (Coordvaisseau[0]+96/2,screen_height-96)
     if Coordvaisseau[1]-Coordhole[1]<2 and Coordvaisseau[0]-Coordhole[0]>-96 and Coordvaisseau[0]-Coordhole[0]<0:
         gameover=1
         print("Fin")
@@ -119,7 +129,10 @@ def jeu():
     if Coordvaisseau[1]-Coordmeteor[1]<2 and Coordvaisseau[0]-Coordmeteor[0]>-96 and Coordvaisseau[0]-Coordmeteor[0]<0:
         gameover=1
         print("Fin")
-    if Coordproj[1]-Coordalien[1]<2 and Coordproj[0]-Coordalien[0]>-45 and Coordproj[0]-Coordalien[0]<0:
+    if Coordvaisseau[1]-Coordprojalien[1]<2 and Coordvaisseau[0]-Coordprojalien[0]>-96 and Coordvaisseau[0]-Coordprojalien[0]<0:
+        gameover=1
+        print("Fin")
+    if Coordproj[1]-Coordalien[1]<2 and Coordproj[0]-Coordalien[0]>-100 and Coordproj[0]-Coordalien[0]<0:
         score+=1
         print(Coordalien,Coordproj)
 
@@ -192,8 +205,14 @@ while True:
     if Coordproj[1]>=0 and Coordproj!=(0,screen_height):
         Coordproj = (Coordproj[0], Coordproj[1] - 50)
     else:
-        proj = pygame.image.load(removebg("assets/cross_impact.png"))
         Coordproj = (0, screen_height)
+    if Coordprojalien[1]>=100:
+        print("Launched")
+        Coordprojalien = (Coordprojalien[0], Coordprojalien[1] + 30)
+    print(Coordprojalien)
+    if Coordprojalien[1]>=screen_height:
+        print("Arrived")
+        Coordprojalien = (screen_width, 0)
     if gameover and ingame:
         screen.blit(game_over,(screen_width/2,screen_width/2))
         pygame.display.update()
@@ -206,6 +225,7 @@ while True:
                 f.write(str(score))
         score = 0
         Coordproj = (0,screen_height)
+        Coordprojalien = (screen_width,0)
         Coordhole = (0,screen_height*2)
         Coordrock = (0,screen_height)
         Coordmeteor = (0,screen_height*1.2)
